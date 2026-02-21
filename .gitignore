@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Models
+*.pkl
+*.joblib
+
+# Large data (optional)
+data/raw.xlsx
+
+# Streamlit
+.streamlit/
