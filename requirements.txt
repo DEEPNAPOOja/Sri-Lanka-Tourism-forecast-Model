@@ -8,3 +8,5 @@ shap
 joblib
 streamlit
 scikit-learn
+fastapi
+uvicorn
