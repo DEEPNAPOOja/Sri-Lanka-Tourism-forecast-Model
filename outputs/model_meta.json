@@ -1,0 +1,12 @@
+{
+  "feature_cols": [
+    "year",
+    "month",
+    "month_sin",
+    "month_cos",
+    "lag_1",
+    "lag_12",
+    "rolling_mean_3"
+  ],
+  "target_col": "arrivals"
+}

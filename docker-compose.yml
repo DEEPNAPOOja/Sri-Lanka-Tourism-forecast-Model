@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tourism-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - tourism-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: tourism-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - tourism-network
+
+networks:
+  tourism-network:
+    driver: bridge
+
+volumes:
+  data-volume:
+  outputs-volume:

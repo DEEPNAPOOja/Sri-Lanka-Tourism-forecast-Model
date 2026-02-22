@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tourism-forecast-app
+    env: python
+    buildCommand: "npm install --prefix frontend && npm run build --prefix frontend && pip install -r requirements.txt"
+    startCommand: "uvicorn src.app:app --host 0.0.0.0 --port $PORT"  
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PYTHONPATH  
+        value: /opt/render/project/src

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend && pip install -r requirements.txt",
+    "watchPatterns": [
+      "frontend/**",
+      "src/**", 
+      "data/**",
+      "outputs/**"
+    ]
+  },
+  "deploy": {
+    "startCommand": "uvicorn src.app:app --host 0.0.0.0 --port $PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "NODE_ENV": "production",
+        "PYTHONPATH": "/app"
+      }
+    }
+  }
+}
