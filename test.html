@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourism Forecast API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .container {
+            background-color: #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        select, input, button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #374151;
+            border-radius: 4px;
+            background-color: #374151;
+            color: #e2e8f0;
+        }
+        button {
+            background-color: #3b82f6;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: #374151;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .forecast-results {
+            background-color: #1e293b;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .forecast-item {
+            padding: 8px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+        }
+        .error {
+            background-color: #dc2626;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌴 Tourism Forecast API Test</h1>
+    
+    <div class="container">
+        <h2>API Integration Test</h2>
+        
+        <!-- Controls -->
+        <div>
+            <label>Country: </label>
+            <select id="countrySelect">
+                <option value="Total">Total (All Countries)</option>
+            </select>
+            
+            <label>Start Year: </label>
+            <input type="number" id="startYear" value="2026" min="2020" max="2030">
+            
+            <label>Start Month: </label>
+            <select id="startMonth">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3" selected>March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            
+            <label>Forecast Months: </label>
+            <select id="horizon">
+                <option value="6">6 months</option>
+                <option value="12" selected>12 months</option>
+                <option value="18">18 months</option>
+                <option value="24">24 months</option>
+            </select>
+            
+            <button onclick="generateForecast()">Generate Forecast</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats" id="statsContainer">
+        <div class="stat-card">
+            <h3>Total Forecast</h3>
+            <div id="totalArrivals">-</div>
+        </div>
+        <div class="stat-card">
+            <h3>Average Monthly</h3>
+            <div id="avgMonthly">-</div>
+        </div>
+        <div class="stat-card">
+            <h3>Peak Month</h3>
+            <div id="peakMonth">-</div>
+        </div>
+        <div class="stat-card">
+            <h3>Growth</h3>
+            <div id="growth">-</div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="container">
+        <h2>Forecast Results</h2>
+        <div id="results" class="forecast-results">
+            <p>Click "Generate Forecast" to see prediction results...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        // Load countries on page load
+        async function loadCountries() {
+            try {
+                const response = await fetch(`${API_URL}/countries`);
+                const data = await response.json();
+                
+                const select = document.getElementById('countrySelect');
+                data.countries.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to load countries:', error);
+                showError('Failed to load countries: ' + error.message);
+            }
+        }
+
+        async function generateForecast() {
+            const country = document.getElementById('countrySelect').value;
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const startMonth = parseInt(document.getElementById('startMonth').value);
+            const horizon = parseInt(document.getElementById('horizon').value);
+
+            showLoading();
+
+            try {
+                let response;
+                
+                if (country === 'Total') {
+                    response = await fetch(`${API_URL}/forecast`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            start_year: startYear,
+                            start_month: startMonth,
+                            horizon: horizon
+                        })
+                    });
+                } else {
+                    response = await fetch(`${API_URL}/forecast_country`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            country: country,
+                            start_year: startYear,
+                            start_month: startMonth,
+                            horizon: horizon
+                        })
+                    });
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                displayResults(data.forecast, horizon);
+                updateStats(data.forecast, horizon);
+
+            } catch (error) {
+                console.error('Forecast failed:', error);
+                showError('Forecast failed: ' + error.message);
+            }
+        }
+
+        function displayResults(forecast, horizon) {
+            const resultsDiv = document.getElementById('results');
+            
+            let html = `<h3>📈 Forecast for ${horizon} months:</h3>`;
+            
+            forecast.forEach((item, index) => {
+                const monthName = new Date(item.year, item.month - 1).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+                
+                html += `
+                    <div class="forecast-item">
+                        <span>${monthName}</span>
+                        <span><strong>${item.predicted_arrivals.toLocaleString()} arrivals</strong></span>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function updateStats(forecast, horizon) {
+            const total = forecast.reduce((sum, item) => sum + item.predicted_arrivals, 0);
+            const avg = total / forecast.length;
+            
+            let peak = forecast[0];
+            forecast.forEach(item => {
+                if (item.predicted_arrivals > peak.predicted_arrivals) {
+                    peak = item;
+                }
+            });
+
+            const first = forecast[0]?.predicted_arrivals || 0;
+            const last = forecast[forecast.length - 1]?.predicted_arrivals || 0;
+            const growth = first !== 0 ? ((last - first) / first) * 100 : 0;
+
+            document.getElementById('totalArrivals').textContent = Math.round(total).toLocaleString();
+            document.getElementById('avgMonthly').textContent = Math.round(avg).toLocaleString();
+            document.getElementById('peakMonth').textContent = new Date(peak.year, peak.month - 1).toLocaleDateString('en-US', { 
+                month: 'short', 
+                year: 'numeric' 
+            });
+            document.getElementById('growth').textContent = `${growth > 0 ? '+' : ''}${growth.toFixed(1)}%`;
+        }
+
+        function showLoading() {
+            document.getElementById('results').innerHTML = 
+                '<div class="loading">🔄 Generating forecast...</div>';
+        }
+
+        function showError(message) {
+            document.getElementById('results').innerHTML = 
+                `<div class="error">❌ ${message}</div>`;
+        }
+
+        // Load countries when page loads
+        window.addEventListener('load', loadCountries);
+    </script>
+</body>
+</html>

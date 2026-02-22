@@ -1,13 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import json
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from src.features import build_features
-from src.schemas import ForecastRequest
+from src.schemas import ForecastRequest, CountryForecastRequest
 from src.utils_time import add_month
 
 app = FastAPI(title="Sri Lanka Tourism Forecast API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MODEL_PATH = Path("outputs/model.pkl")
 META_PATH = Path("outputs/model_meta.json")
@@ -110,20 +120,26 @@ model_country = joblib.load(MODEL_COUNTRY_PATH)
 df_country = pd.read_csv(COUNTRY_DATA_PATH)
 df_country = df_country.sort_values(["country", "date"])
 
-@app.post("/forecast_country")
-def forecast_country(country: str, start_year: int, start_month: int, horizon: int):
 
-    country_df = df_country[df_country["country"] == country.upper()].copy()
+@app.get("/countries")
+def get_countries():
+    return {"countries": sorted(df_country["country"].unique().tolist())}
+
+
+@app.post("/forecast_country")
+def forecast_country(req: CountryForecastRequest):
+
+    country_df = df_country[df_country["country"] == req.country.upper()].copy()
 
     if country_df.empty:
         return {"error": "Country not found"}
 
     history = country_df["arrivals"].tolist()
 
-    y, m = start_year, start_month
+    y, m = req.start_year, req.start_month
     results = []
 
-    for _ in range(horizon):
+    for _ in range(req.horizon):
 
         lag_1 = history[-1]
         lag_12 = history[-12] if len(history) >= 12 else lag_1
@@ -152,13 +168,13 @@ def forecast_country(country: str, start_year: int, start_month: int, horizon: i
 
         history.append(pred)
 
-        # Move month forward
-        m += 1
-        if m > 12:
-            m = 1
-            y += 1
+        # Move to next month using utility function
+        y, m = add_month(y, m)
 
     return {
-        "country": country,
+        "country": req.country.upper(),
+        "start_year": req.start_year,
+        "start_month": req.start_month,
+        "horizon": req.horizon,
         "forecast": results
     }
