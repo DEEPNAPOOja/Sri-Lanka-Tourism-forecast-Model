@@ -1,4 +1,5 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { TrendingUp, BarChart3 } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length && payload[0].value != null) {
@@ -17,10 +18,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 export function ForecastChart({ data, selectedCountry = 'Total' }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl h-[400px] flex items-center justify-center" style={{backgroundColor: '#1e293b', borderColor: '#374151', height: '400px'}}>
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl h-[320px] flex items-center justify-center" style={{backgroundColor: '#1e293b', borderColor: '#374151', height: '320px'}}>
         <div className="text-center">
-          <span className="text-6xl block mb-4">📈</span>
-          <p className="text-slate-400 text-lg font-medium" style={{color: '#94a3b8'}}>No forecast data available</p>
+          <TrendingUp className="mx-auto mb-3 text-slate-500" size={48} />
+          <p className="text-slate-400 text-base font-medium" style={{color: '#94a3b8'}}>No forecast data available</p>
           <p className="text-slate-500 text-sm" style={{color: '#64748b'}}>Adjust your parameters and generate a forecast</p>
         </div>
       </div>
@@ -28,11 +29,11 @@ export function ForecastChart({ data, selectedCountry = 'Total' }) {
   }
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl h-[450px] hover:shadow-2xl transition-shadow duration-300" style={{backgroundColor: '#1e293b', borderColor: '#374151', height: '450px'}}>
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl h-[320px] hover:shadow-2xl transition-shadow duration-300" style={{backgroundColor: '#1e293b', borderColor: '#374151', height: '320px'}}>
+      <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>📊</span>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <BarChart3 className="text-blue-400" size={20} />
             Tourism Arrivals Forecast
           </h2>
           <p className="text-slate-400 text-sm mt-1">

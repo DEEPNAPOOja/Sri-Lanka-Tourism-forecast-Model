@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { StatsCard } from './components/StatsCard';
 import { ForecastChart } from './components/ForecastChart';
-import { Users, Calendar, TrendingUp, Activity, MapPin } from 'lucide-react';
+import { Users, Calendar, TrendingUp, Activity, MapPin, Globe, AlertTriangle, BarChart3, Bot, Plane } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const API_URL = 'http://localhost:8000';
@@ -128,100 +128,134 @@ function App() {
   }, [selectedCountry, forecastParams]);
 
   return (
-    <div className="min-h-screen p-8 font-sans" style={{backgroundColor: '#020617', color: '#e2e8f0', minHeight: '100vh'}}>
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
+    <div className="min-h-screen p-4 font-sans" style={{backgroundColor: '#020617', color: '#e2e8f0', minHeight: '100vh'}}>
+      <div className="max-w-7xl mx-auto space-y-4">
+ 
+        {/* Header Section */}
+        <header className="mb-6 w-full flex flex-col items-center text-center">
+
+          {/* ROW 1 — Main Title */}
+          <div className="w-full flex flex-col items-center mb-3">
+            <div className="flex items-center gap-4 mb-3">
               <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                <span className="text-2xl">🌴</span>
+                <Plane className="text-white" size={24} />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent leading-tight">
                 Sri Lanka Tourism Arrival Forecasting Model
               </h1>
             </div>
-            <p className="text-slate-400 text-lg">
-              Advanced AI-powered forecasting & analytics for Sri Lanka Tourism Board
-            </p>
-            <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                API Connected
-              </span>
-              <span>Last Updated: {new Date().toLocaleDateString()}</span>
-            </div>
           </div>
-          
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Country Selection */}
-            <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-lg p-1 pr-4 hover:border-blue-500/50 transition-colors">
-              <div className="p-2 text-blue-400">
-                <MapPin size={20} />
-              </div>
-              <select 
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                className="bg-transparent border-none outline-none text-slate-200 min-w-[180px] cursor-pointer font-medium"
-              >
-                {countries.map(c => (
-                  <option key={c} value={c} className="bg-slate-800 text-slate-200">
-                    {c === 'Total' ? '🌍 All Countries' : `🏴󐁧󐁢󐁥󐁮󐁧󐁿 ${c}`}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            {/* Forecast Parameters */}
-            <div className="flex gap-3 items-end bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-blue-500/50 transition-colors">
-              <div className="flex flex-col">
-                <label className="text-xs text-slate-400 mb-2 font-medium">Start Year</label>
+          {/* ROW 2 — Description */}
+          <div className="w-full max-w-4xl mb-6">
+            <p className="text-slate-400 text-lg leading-relaxed">
+              Advanced AI-powered forecasting & analytics dashboard for Sri Lanka Tourism.
+              Explore historical trends, seasonal patterns, and generate intelligent
+              future predictions using machine learning.
+            </p>
+          </div>
+
+          {/* ROW 3 — Filters */}
+          <div className="w-full max-w-6xl bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-4 shadow-lg">
+
+            <div className="flex items-end justify-between gap-3">
+
+              {/* Country */}
+              <div className="flex flex-col w-[260px]">
+                <label className="text-xs text-slate-400 mb-2 font-medium">
+                  Country
+                </label>
+                <select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  className="bg-slate-800 border border-slate-600 rounded-md px-4 py-2.5 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition appearance-none"
+                >
+                  {countries.map(c => (
+                    <option key={c} value={c} className="bg-slate-800">
+                      {c === "Total" ? "🌐 All Countries" : c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Start Year */}
+              <div className="flex flex-col w-[140px]">
+                <label className="text-xs text-slate-400 mb-2 font-medium">
+                  Year
+                </label>
                 <input
                   type="number"
                   value={forecastParams.startYear}
-                  onChange={(e) => setForecastParams(prev => ({...prev, startYear: parseInt(e.target.value)}))}
-                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-200 w-24 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={(e) =>
+                    setForecastParams(prev => ({
+                      ...prev,
+                      startYear: parseInt(e.target.value)
+                    }))
+                  }
+                  className="bg-slate-800 border border-slate-600 rounded-md px-4 py-2.5 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                   min="2020"
-                  max="2030"
+                  max="2035"
                 />
               </div>
-              <div className="flex flex-col">
-                <label className="text-xs text-slate-400 mb-2 font-medium">Start Month</label>
+
+              {/* Start Month */}
+              <div className="flex flex-col w-[180px]">
+                <label className="text-xs text-slate-400 mb-2 font-medium">
+                  Month
+                </label>
                 <select
                   value={forecastParams.startMonth}
-                  onChange={(e) => setForecastParams(prev => ({...prev, startMonth: parseInt(e.target.value)}))}
-                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-200 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={(e) =>
+                    setForecastParams(prev => ({
+                      ...prev,
+                      startMonth: parseInt(e.target.value)
+                    }))
+                  }
+                  className="bg-slate-800 border border-slate-600 rounded-md px-4 py-2.5 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
-                  {Array.from({length: 12}, (_, i) => (
-                    <option key={i+1} value={i+1} className="bg-slate-800">
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={i + 1} className="bg-slate-800">
                       {new Date(2024, i).toLocaleString('default', { month: 'long' })}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="flex flex-col">
-                <label className="text-xs text-slate-400 mb-2 font-medium">Forecast Period</label>
+
+              {/* Forecast Period */}
+              <div className="flex flex-col w-[180px]">
+                <label className="text-xs text-slate-400 mb-2 font-medium">
+                  Forecast
+                </label>
                 <select
                   value={forecastParams.horizon}
-                  onChange={(e) => setForecastParams(prev => ({...prev, horizon: parseInt(e.target.value)}))}
-                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-slate-200 text-sm font-medium focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  onChange={(e) =>
+                    setForecastParams(prev => ({
+                      ...prev,
+                      horizon: parseInt(e.target.value)
+                    }))
+                  }
+                  className="bg-slate-800 border border-slate-600 rounded-md px-4 py-2.5 text-slate-200 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
                 >
-                  <option value={6} className="bg-slate-800">6 months</option>
-                  <option value={12} className="bg-slate-800">12 months</option>
-                  <option value={18} className="bg-slate-800">18 months</option>
-                  <option value={24} className="bg-slate-800">24 months</option>
+                  <option value={6}>6 Months</option>
+                  <option value={12}>12 Months</option>
+                  <option value={18}>18 Months</option>
+                  <option value={24}>24 Months</option>
                 </select>
               </div>
-              <button 
-                onClick={() => window.location.reload()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 shadow-lg"
-              >
-                <span>🔄</span>
-                Refresh Data
-              </button>
+
+              {/* Button */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md text-sm font-semibold transition shadow-md"
+                >
+                  Refresh
+                </button>
+              </div>
+
             </div>
           </div>
+
         </header>
 
         {loading ? (
@@ -229,9 +263,9 @@ function App() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{width: '3rem', height: '3rem', borderBottomWidth: '2px', borderBottomColor: '#3b82f6'}}></div>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-64 bg-slate-800 border border-red-500/20 rounded-xl">
+          <div className="flex items-center justify-center h-40 bg-slate-800 border border-red-500/20 rounded-xl">
             <div className="text-center">
-              <div className="text-red-400 text-lg mb-2">⚠️</div>
+              <AlertTriangle className="text-red-400 mx-auto mb-2" size={24} />
               <p className="text-red-400 font-medium">{error}</p>
               <button 
                 onClick={() => window.location.reload()} 
@@ -244,7 +278,7 @@ function App() {
         ) : (
           <div>
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <StatsCard 
                 title={`Total Forecast (${forecastParams.horizon}m)`} 
                 value={stats.totalArrivals.toLocaleString()} 
@@ -273,25 +307,25 @@ function App() {
             </div>
 
             {/* Main Dashboard Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               {/* Chart Section */}
-              <div className="lg:col-span-3 space-y-6">
+              <div className="lg:col-span-3 space-y-4">
                 <ForecastChart data={forecastData} selectedCountry={selectedCountry} />
                 
                 {/* Detailed Results Table */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl" style={{backgroundColor: '#1e293b', borderColor: '#374151'}}>
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <span>📈</span>
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl" style={{backgroundColor: '#1e293b', borderColor: '#374151'}}>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <BarChart3 className="text-blue-400" size={20} />
                       Detailed Forecast Results
                     </h3>
-                    <span className="text-sm bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full font-medium">
                       {forecastParams.horizon} months projection
                     </span>
                   </div>
                   
                   {forecastData.length > 0 ? (
-                    <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                    <div className="max-h-48 overflow-y-auto custom-scrollbar">
                       <div className="space-y-2">
                         {forecastData.map((item, index) => {
                           const monthName = new Date(2024, (index + forecastParams.startMonth - 1) % 12).toLocaleDateString('en-US', { 
@@ -317,8 +351,8 @@ function App() {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-slate-400">
-                      <span className="text-4xl block mb-2">📊</span>
+                    <div className="text-center py-6 text-slate-400">
+                      <BarChart3 className="mx-auto mb-2 text-slate-500" size={32} />
                       <p>Generate a forecast to see detailed results</p>
                     </div>
                   )}
@@ -326,9 +360,9 @@ function App() {
               </div>
               
               {/* Enhanced Sidebar */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Key Insights */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl" style={{backgroundColor: '#1e293b', borderColor: '#374151'}}>
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl" style={{backgroundColor: '#1e293b', borderColor: '#374151'}}>
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <Activity size={20} className="text-blue-400" />
                     Key Insights
@@ -352,10 +386,10 @@ function App() {
                 </div>
 
                 {/* Model Information */}
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 shadow-xl relative overflow-hidden">
+                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-4 shadow-xl relative overflow-hidden">
                   <div className="relative z-10">
-                    <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                      <span>🤖</span>
+                    <h3 className="text-base font-bold text-white mb-2 flex items-center gap-2">
+                      <Bot className="text-white" size={18} />
                       AI Model Info
                     </h3>
                     <div className="space-y-2 text-blue-100 text-sm mb-4">
@@ -373,23 +407,7 @@ function App() {
                   </div>
                 </div>
 
-                {/* Export Options */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl" style={{backgroundColor: '#1e293b', borderColor: '#374151'}}>
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <span>📄</span>
-                    Export Data
-                  </h3>
-                  <div className="space-y-3">
-                    <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                      <span>📊</span>
-                      Export to CSV
-                    </button>
-                    <button className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                      <span>📄</span>
-                      Download PDF Report
-                    </button>
-                  </div>
-                </div>
+               
               </div>
             </div>
           </div>
