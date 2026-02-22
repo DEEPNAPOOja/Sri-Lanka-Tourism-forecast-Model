@@ -10,3 +10,4 @@ streamlit
 scikit-learn
 fastapi
 uvicorn
+plotly
