@@ -1,0 +1,35 @@
+{
+  "name": "tourism-forecast-app",
+  "description": "Sri Lanka Tourism Arrival Forecasting Application with FastAPI and React",
+  "keywords": ["fastapi", "react", "machine-learning", "forecasting", "tourism"],
+  "website": "",
+  "repository": "",
+  "success_url": "/",
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "PYTHONPATH": {
+      "description": "Python path",
+      "value": "/app"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "stack": "heroku-22"
+}

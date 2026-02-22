@@ -1,4 +1,26 @@
 {
+  "name": "tourism-forecast-fullstack",
+  "version": "1.0.0", 
+  "description": "Sri Lanka Tourism Arrival Forecasting - Full Stack Application",
+  "main": "src/app.py",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "uvicorn src.app:app --host 0.0.0.0 --port ${PORT:-8000}",
+    "dev": "cd frontend && npm run dev",
+    "install-all": "pip install -r requirements.txt && cd frontend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.11.0"
+  },
+  "keywords": [
+    "fastapi",
+    "react", 
+    "machine-learning",
+    "forecasting",
+    "tourism",
+    "sri-lanka"
+  ],
   "dependencies": {
     "axios": "^1.13.5",
     "clsx": "^2.1.1",
@@ -10,5 +32,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.0"
-  }
+  },
+  "author": "",
+  "license": "MIT"
 }

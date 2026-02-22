@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import joblib
 import json
 import pandas as pd
@@ -19,6 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serve frontend static files if they exist
+FRONTEND_BUILD_PATH = Path("frontend/dist")
+if FRONTEND_BUILD_PATH.exists():
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_BUILD_PATH / "assets")), name="static")
+
 MODEL_PATH = Path("outputs/model.pkl")
 META_PATH = Path("outputs/model_meta.json")
 DATA_PATH = Path("data/total_features.csv")
@@ -35,12 +42,27 @@ df = pd.read_csv(DATA_PATH)
 df = df.sort_values("date")
 
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {"message": "Tourism Forecast API Running"}
 
 
-@app.post("/predict")
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "message": "Tourism Forecast API is running",
+        "version": "1.0.0",
+        "endpoints": {
+            "predict": "/api/predict",
+            "forecast": "/api/forecast", 
+            "countries": "/api/countries",
+            "forecast_country": "/api/forecast_country"
+        }
+    }
+
+
+@app.post("/api/predict")
 def predict(year: int, month: int):
 
     # Get last available values
@@ -65,7 +87,7 @@ def predict(year: int, month: int):
     }
 
 
-@app.post("/forecast")
+@app.post("/api/forecast")
 def forecast(req: ForecastRequest):
     # Start from the latest known history in total_features.csv
     history = df.copy().sort_values("date")["arrivals"].tolist()
@@ -121,12 +143,12 @@ df_country = pd.read_csv(COUNTRY_DATA_PATH)
 df_country = df_country.sort_values(["country", "date"])
 
 
-@app.get("/countries")
+@app.get("/api/countries")
 def get_countries():
     return {"countries": sorted(df_country["country"].unique().tolist())}
 
 
-@app.post("/forecast_country")
+@app.post("/api/forecast_country")
 def forecast_country(req: CountryForecastRequest):
 
     country_df = df_country[df_country["country"] == req.country.upper()].copy()
@@ -177,4 +199,37 @@ def forecast_country(req: CountryForecastRequest):
         "start_month": req.start_month,
         "horizon": req.horizon,
         "forecast": results
+    }
+
+
+# Serve frontend for all non-API routes
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    """Serve the React frontend for all non-API routes"""
+    if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json"]:
+        return {"error": "API endpoint not found"}
+    
+    # Serve React app
+    if FRONTEND_BUILD_PATH.exists():
+        index_file = FRONTEND_BUILD_PATH / "index.html"
+        if index_file.exists():
+            return FileResponse(str(index_file))
+    
+    return {"message": "Frontend not built. Run 'npm run build' in the frontend directory."}
+
+
+# Serve root path
+@app.get("/")
+async def serve_root():
+    """Serve the React frontend at root path"""
+    if FRONTEND_BUILD_PATH.exists():
+        index_file = FRONTEND_BUILD_PATH / "index.html"
+        if index_file.exists():
+            return FileResponse(str(index_file))
+    
+    return {
+        "message": "Tourism Forecast API Running",
+        "frontend": "Not built",
+        "docs": "/docs",
+        "health": "/health"
     }

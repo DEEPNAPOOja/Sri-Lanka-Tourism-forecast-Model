@@ -5,7 +5,7 @@ import { ForecastChart } from './components/ForecastChart';
 import { Users, Calendar, TrendingUp, Activity, MapPin, Globe, AlertTriangle, BarChart3, Bot, Plane } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:8000/api';
 
 function App() {
   const [countries, setCountries] = useState([]);
