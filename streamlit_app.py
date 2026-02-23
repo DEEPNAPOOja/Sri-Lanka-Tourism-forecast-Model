@@ -53,7 +53,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Sidebar controls
-st.sidebar.header("🎛️ Forecast Settings")
+st.sidebar.header(" Forecast Settings")
 
 selected_country = st.sidebar.selectbox(
     "Select Country/Region",
@@ -71,7 +71,7 @@ with col2:
 horizon = st.sidebar.slider("Forecast Horizon (months)", 3, 24, 12)
 
 # Generate forecast
-if st.sidebar.button("🚀 Generate Forecast", type="primary"):
+if st.sidebar.button(" Generate Forecast", type="primary"):
     with st.spinner("Generating forecast..."):
         try:
             if selected_country == 'Total':
@@ -150,7 +150,7 @@ if hasattr(st.session_state, 'forecast_results'):
     
     # Create DataFrame for visualization
     df_results = pd.DataFrame(results)
-    df_results['date'] = df_results.apply(lambda row: f"{row['year']}-{row['month']:02d}", axis=1)
+    df_results['date'] = df_results.apply(lambda row: f"{int(row['year'])}-{int(row['month']):02d}", axis=1)
     
     # Statistics
     total_arrivals = df_results['predicted_arrivals'].sum()
@@ -177,10 +177,10 @@ if hasattr(st.session_state, 'forecast_results'):
     
     fig.update_traces(line=dict(color='#1F4E79', width=3))
     fig.update_layout(height=500, showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
     
     # Detailed results
-    st.subheader("📊 Detailed Forecast Results")
+    st.subheader(" Detailed Forecast Results")
     
     # Format the results table
     display_df = df_results.copy()
@@ -190,7 +190,7 @@ if hasattr(st.session_state, 'forecast_results'):
     
     st.dataframe(
         display_df[['Month Name', 'Predicted Arrivals']],
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
 
@@ -202,7 +202,7 @@ else:
     st.subheader("📈 Recent Historical Data")
     recent_data = df.tail(12)[['date', 'arrivals']]
     recent_data['arrivals'] = recent_data['arrivals'].apply(lambda x: f"{x:,.0f}")
-    st.dataframe(recent_data, use_container_width=True, hide_index=True)
+    st.dataframe(recent_data, width='stretch', hide_index=True)
 
 # Footer
 st.markdown("""

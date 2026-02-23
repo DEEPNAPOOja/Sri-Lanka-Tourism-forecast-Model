@@ -101,7 +101,7 @@ body {
 
 /* Glass effect */
 .glass {
-  backdrop-filter: blur(16px) saturate(180%);
+  /* backdrop-filter: blur(16px) saturate(180%); */
   background-color: rgba(30, 41, 59, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
 }
