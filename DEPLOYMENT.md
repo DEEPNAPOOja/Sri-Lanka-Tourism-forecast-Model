@@ -193,3 +193,128 @@ For deployment to production, consider:
 - Adding SSL certificates
 - Implementing health checks
 - Setting up monitoring and alerting
+
+---
+
+## 🚀 Vercel + Render Deployment (Recommended for Modern Stack)
+
+Deploy the frontend to **Vercel** (best for React) and backend to **Render** (best for Python APIs).
+
+### Step 1: Deploy Backend to Render
+
+1. Push your repo to GitHub
+2. Visit [render.com](https://render.com) and sign in
+3. Click **New +** → **Web Service**
+4. Connect your GitHub repository
+5. Fill in the following:
+   - **Name**: `tourism-forecast-api` (or your choice)
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn src.app:app --host 0.0.0.0 --port $PORT`
+6. Click **Create Web Service**
+7. Wait for deployment (~2-3 mins)
+8. Copy the service URL (e.g., `https://tourism-forecast-api.onrender.com`)
+
+### Step 2: Update vercel.json with Backend URL
+
+Edit `vercel.json` and replace `your-backend-url.onrender.com` with your actual Render backend URL:
+
+```json
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://YOUR_RENDER_URL.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+### Step 3: Deploy Frontend to Vercel
+
+#### Option A: Via Vercel Dashboard (Easiest)
+
+1. Visit [vercel.com](https://vercel.com) and sign in with GitHub
+2. Click **Add New** → **Project**
+3. Import your repository
+4. In **Project Settings**:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `frontend`
+   - **Install Command**: `npm install`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+5. Add **Environment Variables** (for both Preview & Production):
+   - Key: `VITE_API_URL`
+   - Value: `https://YOUR_RENDER_URL.onrender.com/api`
+6. Click **Deploy**
+7. Wait for deployment (~1-2 mins)
+8. Visit your Vercel URL (e.g., `https://tourism-forecast.vercel.app`)
+
+#### Option B: Via Vercel CLI
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy from project root
+vercel --prod
+
+# Add environment variable interactively (or use dashboard)
+vercel env add VITE_API_URL production
+# Enter: https://YOUR_RENDER_URL.onrender.com/api
+```
+
+### Step 4: Verify End-to-End
+
+1. Open your Vercel frontend URL
+2. Open DevTools → Network tab
+3. Try the forecast feature (select country, adjust dates, click any action)
+4. Verify requests go to `/api/forecast` or `/api/countries`
+5. Confirm responses return data (no 404 errors)
+
+Optionally, test backend directly:
+```bash
+# Health check
+curl https://YOUR_RENDER_URL.onrender.com/api/health
+
+# Forecast endpoint
+curl -X POST https://YOUR_RENDER_URL.onrender.com/api/forecast \
+  -H "Content-Type: application/json" \
+  -d '{"start_year":2026,"start_month":5,"horizon":12}'
+```
+
+### Step 5: Configure Custom Domain (Optional)
+
+**For Vercel:**
+1. Vercel Dashboard → Project Settings → Domains
+2. Add your domain (e.g., `tourism-forecast.com`)
+3. Update DNS records as instructed
+
+**For Render:**
+1. Render Dashboard → Web Service → Settings → Custom Domain
+2. Add your subdomain (e.g., `api.tourism-forecast.com`)
+3. Update DNS records
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Frontend returns 404 for `/api/...` | Verify `vercel.json` rewrites and backend URL in Render |
+| "Cannot GET /api/forecast" | Check backend deployed correctly; test `https://YOUR_RENDER_URL.onrender.com/api/health` |
+| CORS errors in browser | Not an issue with Vercel rewrites; if using env var, ensure backend CORS is enabled |
+| Backend spins down after 15 mins (Render free tier) | Upgrade to paid plan or add a scheduler to ping `/api/health` every 10 mins |
+
+### Performance Notes
+
+- **Vercel**: Infinite edge locations, globally fast
+- **Render**: US-based; free tier may have 15-min cold starts
+- **Upgrade Render** to avoid cold starts: Render Dashboard → Instance Type → change to `Starter` ($7/mo)
